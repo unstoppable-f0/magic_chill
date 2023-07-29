@@ -9,4 +9,4 @@ It also allows you to make a list of  books that you read and poems that you lea
 
 Built on aiogram 3.x.x and aiogram-dialog library by Tishka17 (many thanks to authors of the libraries and to all contributors)
 
-Gonna add statistics block in the future so you (I) can see interesting numbers regarding my meetings. Just like you have in the end of the year in Social Networks or music apps. 
+Gonna add the statistics block in the future so you (I) can see interesting numbers regarding my meetings. Just like you have in the end of the year in Social Networks or music apps. 
