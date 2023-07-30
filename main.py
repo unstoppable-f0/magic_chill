@@ -12,17 +12,17 @@ from loader import bot, dp
 # from dialogs.setup_bot.dialogs import setup_bot_dialog
 # from dialogs.view_memes.dialogs import view_memes_dialog
 
-from dialogs import main_menu
+from dialogs import main_menu, remember_event
 
 
 async def main():
     dp.include_routers(
-        main_menu.main_menu.router
-        # test_send_photo.router,
+        main_menu.main_menu.router,
+        remember_event.dialogs.remember_event_dialog,
         # setup_bot_dialog,
         # view_memes_dialog
     )
-    # setup_dialogs(dp) # aiogram_dialog thing
+    setup_dialogs(dp)  # aiogram_dialog thing
     await dp.start_polling(bot, skip_updates=True)
 
 if __name__ == '__main__':
