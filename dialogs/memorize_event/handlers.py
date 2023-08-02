@@ -25,7 +25,7 @@ async def date_to_places(callback: types.CallbackQuery, button: Button, dialog_m
                          *args) -> None:
     """Switching to the Places phase of the Memo-dialog"""
     today = date.today().strftime('%Y-%m-%d')
-    dialog_manager.current_context().dialog_data["date"] = today
+    dialog_manager.dialog_data["date"] = today
 
     await dialog_manager.switch_to(MemorizeEvent.places)
 
@@ -43,7 +43,7 @@ async def date_success(message: types.Message, enter: TextInput, dialog_manager:
 
     date_from_user = strptime(message.text, "%d %m %y")  # Getting a date from user and converting it for SQlite
     converted_date = strftime("%Y-%m-%d", date_from_user)
-    dialog_manager.current_context().dialog_data["date"] = converted_date
+    dialog_manager.dialog_data["date"] = converted_date
 
     await message.answer(text="Great, moving on!")
     await dialog_manager.next()
@@ -59,7 +59,7 @@ async def places_to_friends(callback: types.CallbackQuery, button: Button, dialo
                             *args) -> None:
     """Switching to the Friends phase of the Memo-dialog (after choosing any given place)"""
     if callback.data != "another_place":
-        dialog_manager.current_context().dialog_data["place"] = callback.data.lstrip("places_kb:")
+        dialog_manager.dialog_data["place"] = callback.data.lstrip("places_kb:")
     await dialog_manager.switch_to(MemorizeEvent.friends)
 
 
@@ -67,7 +67,7 @@ async def place_success(message: types.Message, enter: TextInput, dialog_manager
     """Takes another place from the user's input"""
     place_input_widget = dialog_manager.find("place_input_text")
     user_place = place_input_widget.get_value()
-    dialog_manager.current_context().dialog_data["place"] = user_place
+    dialog_manager.dialog_data["place"] = user_place
 
     await message.answer(text="What an interesting place!")
     await dialog_manager.next()
@@ -80,7 +80,7 @@ async def friends_to_state(callback: types.CallbackQuery, button: Button, dialog
     """
     multi_friends_widget = dialog_manager.find("multi_friends")
     multi_friends_data = multi_friends_widget.get_checked()
-    dialog_manager.current_context().dialog_data["friends"] = multi_friends_data
+    dialog_manager.dialog_data["friends"] = multi_friends_data
 
     await dialog_manager.switch_to(MemorizeEvent.state)
 
@@ -91,7 +91,7 @@ async def friends_to_input(callback: types.CallbackQuery, button: Button, dialog
     """
     multi_friends_widget = dialog_manager.find("multi_friends")
     multi_friends_data = multi_friends_widget.get_checked()
-    dialog_manager.current_context().dialog_data["friends"] = multi_friends_data
+    dialog_manager.dialog_data["friends"] = multi_friends_data
 
     await dialog_manager.next()
 
@@ -101,7 +101,7 @@ async def friends_input_success(message: types.Message, enter: TextInput, dialog
     friends_input_widget = dialog_manager.find("friends_input_text")
     other_friends = friends_input_widget.get_value().split(";")
 
-    dialog_manager.current_context().dialog_data["friends"].extend(other_friends)
+    dialog_manager.dialog_data["friends"].extend(other_friends)
 
     await message.answer("Beautiful people! Let's continue")
     await dialog_manager.next()
@@ -109,7 +109,7 @@ async def friends_input_success(message: types.Message, enter: TextInput, dialog
 
 # The 'state' part of Memo-dialog handlers
 async def state_to_memes(callback: types.CallbackQuery, button: Button, dialog_manager: DialogManager, *args) -> None:
-    dialog_manager.current_context().dialog_data["state"] = callback.data
+    dialog_manager.dialog_data["state"] = callback.data
     await dialog_manager.next()
 
 
@@ -119,12 +119,12 @@ async def memes_success(message: types.Message, enter: TextInput, dialog_manager
 
     memes_widget = dialog_manager.find("memes_input_text")  # Getting data from user's input
     memes_data = memes_widget.get_value()
-    dialog_manager.current_context().dialog_data["memes"] = memes_data
+    dialog_manager.dialog_data["memes"] = memes_data
 
-    dialog_manager.current_context().dialog_data["friends"] = "; ".join(
-        dialog_manager.current_context().dialog_data.get("friends")
+    dialog_manager.dialog_data["friends"] = "; ".join(
+        dialog_manager.dialog_data.get("friends")
     )
-    data = dialog_manager.current_context().dialog_data.values()
+    data = dialog_manager.dialog_data.values()
 
     with BotDB() as db:
         db.insert_memo_values(message.from_user.id,
@@ -140,11 +140,11 @@ async def photos_input_got(message: types.Message, enter: MessageInput, dialog_m
     """Input of photos from user and saving them into the database"""
     with BotDB() as db:
         db.update_photo_column(user_id=message.from_user.id,
-                               date=dialog_manager.current_context().dialog_data["date"],
+                               date=dialog_manager.dialog_data["date"],
                                photo_id=message.photo[-1].file_id)
 
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
-                                         date=dialog_manager.current_context().dialog_data["date"])
+                                         date=dialog_manager.dialog_data["date"])
 
     await message.photo[0].download(
         destination_dir=fr"C:\Me\Coding_Python\Projects\Magic_Chill\photos_backup\{dir_name}"
@@ -173,11 +173,11 @@ async def input_more_photos(message: types.Message, enter: TextInput, dialog_man
 
     with BotDB() as db:
         db.add_new_photo(user_id=message.from_user.id,
-                         date=dialog_manager.current_context().dialog_data["date"],
+                         date=dialog_manager.dialog_data["date"],
                          new_photo_id=message.photo[-1].file_id)
 
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
-                                         date=dialog_manager.current_context().dialog_data["date"])
+                                         date=dialog_manager.dialog_data["date"])
 
     await message.photo[0].download(
         destination_dir=fr"C:\Me\Coding_Python\Projects\Magic_Chill\photos_backup\{dir_name}"
