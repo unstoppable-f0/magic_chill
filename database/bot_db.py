@@ -44,7 +44,7 @@ class BotDB:
         drop_req = """DROP TABLE events"""
         self.execute(drop_req)
 
-    def insert_memo_values(self, *args: str) -> None:
+    def insert_memo_values(self, *args: str | int) -> None:
         sql_req = """INSERT INTO events(user_id, number, date, places, people, state, memes) 
         VALUES (?, ?, ?, ?, ?, ?, ?)"""
         self.execute(sql_req, args)
