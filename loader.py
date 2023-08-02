@@ -8,7 +8,6 @@ import configparser
 config = configparser.ConfigParser()    # parser-object
 config.read("config.ini")
 BOT_TOKEN = config["BOT"]["token"]
-print(BOT_TOKEN)
 
 # Creating a memory storage to use in the bot (in the dispatcher), in RAM
 storage = MemoryStorage()

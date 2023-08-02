@@ -12,14 +12,14 @@ from loader import bot, dp
 # from dialogs.setup_bot.dialogs import setup_bot_dialog
 # from dialogs.view_memes.dialogs import view_memes_dialog
 
-from dialogs import main_menu, remember_event
+from dialogs import main_menu, remember_event, memorize_event
 
 
 async def main():
     dp.include_routers(
         main_menu.main_menu.router,
         remember_event.dialogs.remember_event_dialog,
-        # setup_bot_dialog,
+        memorize_event.dialogs.memorize_dialog
         # view_memes_dialog
     )
     setup_dialogs(dp)  # aiogram_dialog thing
