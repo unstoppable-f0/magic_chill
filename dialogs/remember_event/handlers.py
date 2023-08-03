@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.input import TextInput
 
 from main import dp
+from loader import bot
 from database.bot_db import BotDB
 from dialogs.states import RememberEvent
 
@@ -145,19 +146,20 @@ async def add_places_success(message: types.Message, enter: TextInput, dialog_ma
 
 async def add_photo_success(message: types.Message, enter: TextInput, dialog_manager: DialogManager, *args) -> None:
     """Function to add new photos into the DataBase"""
+
+    user_photo = message.photo[-1]
     with BotDB() as db:
         db.add_new_photo(user_id=dialog_manager.current_context().start_data,
                          date=dialog_manager.current_context().dialog_data["event_date"],
-                         new_photo_id=message.photo[-1].file_id)
+                         new_photo_id=user_photo.file_id)
 
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
                                          date=dialog_manager.current_context().dialog_data["event_date"])
 
 
     # IS THIS THE PROBLEM WITH BACKUPS FOR PHOTOS?
-    # await message.photo[0].download(
-    #     destination_dir=fr"C:\Me\Coding_Python\Projects\Magic_Chill\photos_backup\{dir_name}"
-    # )
+    await bot.download(file=user_photo,
+                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{dir_name}.jpg")
 
     await message.answer("Got that photo!")
     await dialog_manager.switch_to(RememberEvent.ask_more_photos)

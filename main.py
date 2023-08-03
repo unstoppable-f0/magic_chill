@@ -13,13 +13,15 @@ from loader import bot, dp
 # from dialogs.view_memes.dialogs import view_memes_dialog
 
 from dialogs import main_menu, remember_event, memorize_event
+from dialogs import test_dialog
 
 
 async def main():
     dp.include_routers(
         main_menu.main_menu.router,
         remember_event.dialogs.remember_event_dialog,
-        memorize_event.dialogs.memorize_dialog
+        memorize_event.dialogs.memorize_dialog,
+        test_dialog.test.router     # clean up testing branch after completing work
         # view_memes_dialog
     )
     setup_dialogs(dp)  # aiogram_dialog thing

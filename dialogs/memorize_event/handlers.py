@@ -9,6 +9,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.input import TextInput, MessageInput
 
 from main import dp
+from loader import bot
 from database.bot_db import BotDB
 from dialogs.states import MemorizeEvent
 
@@ -138,17 +139,19 @@ async def memes_success(message: types.Message, enter: TextInput, dialog_manager
 # The 'photos' part of Memo-dialog handlers
 async def photos_input_got(message: types.Message, enter: MessageInput, dialog_manager: DialogManager, *args) -> None:
     """Input of photos from user and saving them into the database"""
-    with BotDB() as db:
-        db.update_photo_column(user_id=message.from_user.id,
-                               date=dialog_manager.dialog_data["date"],
-                               photo_id=message.photo[-1].file_id)
 
+    user_photo = message.photo[-1]
+    with BotDB() as db:
+        db.add_new_photo(user_id=message.from_user.id,
+                         date=dialog_manager.dialog_data["date"],
+                         new_photo_id=user_photo.file_id)
+
+        # сделать названия файлов
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
                                          date=dialog_manager.dialog_data["date"])
 
-    await message.photo[0].download(
-        destination_dir=fr"C:\Me\Coding_Python\Projects\Magic_Chill\photos_backup\{dir_name}"
-    )
+    await bot.download(file=user_photo,
+                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{dir_name}.jpg")
 
     await message.answer("Got the photo!")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)
@@ -171,17 +174,18 @@ async def memorizing_more_photo_yes(callback: types.CallbackQuery, button: Butto
 async def input_more_photos(message: types.Message, enter: TextInput, dialog_manager: DialogManager, *args) -> None:
     """User decides to add more photos to the event"""
 
+    user_photo = message.photo[-1]
     with BotDB() as db:
         db.add_new_photo(user_id=message.from_user.id,
                          date=dialog_manager.dialog_data["date"],
-                         new_photo_id=message.photo[-1].file_id)
+                         new_photo_id=user_photo.file_id)
 
+        # сделать названия файлов
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
                                          date=dialog_manager.dialog_data["date"])
 
-    await message.photo[0].download(
-        destination_dir=fr"C:\Me\Coding_Python\Projects\Magic_Chill\photos_backup\{dir_name}"
-    )
+    await bot.download(file=user_photo,
+                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{dir_name}.jpg")
 
     await message.answer("Got your new photo")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)
