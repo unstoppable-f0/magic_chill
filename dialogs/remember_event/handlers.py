@@ -24,7 +24,7 @@ async def choose_to_dates(callback: types.CallbackQuery, button: Button, dialog_
     """Choosing a state we're looking into and passing a callback date to getter, so we can get the exact event days"""
 
     state = callback.data.lstrip("fetch_")
-    dialog_manager.current_context().dialog_data["state"] = state
+    dialog_manager.dialog_data["state"] = state
     await dialog_manager.switch_to(RememberEvent.event_dates)
 
 
@@ -34,7 +34,7 @@ async def dates_to_the_event(callback: types.CallbackQuery, button: Button, dial
     Choosing an event-date, so we can pass a data to the getter and fetch info about the event
     """
     event_date = callback.data.lstrip("event_dates_kb:")
-    dialog_manager.current_context().dialog_data["event_date"] = event_date
+    dialog_manager.dialog_data["event_date"] = event_date
 
     await dialog_manager.switch_to(RememberEvent.the_event)
 
@@ -108,7 +108,7 @@ async def add_memes_success(message: types.Message, enter: TextInput, dialog_man
     with BotDB() as db:
         db.add_new_memes(new_memes=new_memes,
                          user_id=dialog_manager.current_context().start_data,
-                         date=dialog_manager.current_context().dialog_data["event_date"])
+                         date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Added new memes to the event record, choom 🧐")
     await dialog_manager.switch_to(RememberEvent.the_event)
@@ -123,7 +123,7 @@ async def add_ppl_success(message: types.Message, enter: TextInput, dialog_manag
     with BotDB() as db:
         db.add_new_ppl(new_ppl=new_ppl,
                        user_id=dialog_manager.current_context().start_data,
-                       date=dialog_manager.current_context().dialog_data["event_date"])
+                       date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Added new people to the event record, choom 👯")
     await dialog_manager.switch_to(RememberEvent.the_event)
@@ -138,7 +138,7 @@ async def add_places_success(message: types.Message, enter: TextInput, dialog_ma
     with BotDB() as db:
         db.add_new_places(new_places=new_places,
                           user_id=dialog_manager.current_context().start_data,
-                          date=dialog_manager.current_context().dialog_data["event_date"])
+                          date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Like to keep moving, hm? Got it 🛵")
     await dialog_manager.switch_to(RememberEvent.the_event)
@@ -150,11 +150,11 @@ async def add_photo_success(message: types.Message, enter: TextInput, dialog_man
     user_photo = message.photo[-1]
     with BotDB() as db:
         db.add_new_photo(user_id=dialog_manager.current_context().start_data,
-                         date=dialog_manager.current_context().dialog_data["event_date"],
+                         date=dialog_manager.dialog_data["event_date"],
                          new_photo_id=user_photo.file_id)
 
         dir_name = db.get_exact_event_id(user_id=message.from_user.id,
-                                         date=dialog_manager.current_context().dialog_data["event_date"])
+                                         date=dialog_manager.dialog_data["event_date"])
 
 
     # IS THIS THE PROBLEM WITH BACKUPS FOR PHOTOS?
@@ -177,7 +177,7 @@ async def delete_event(callback: types.CallbackQuery, button: Button, dialog_man
 
     with BotDB() as db:
         db.delete_event(user_id=dialog_manager.current_context().start_data,
-                        date=dialog_manager.current_context().dialog_data["event_date"])
+                        date=dialog_manager.dialog_data["event_date"])
 
     await dialog_manager.switch_to(RememberEvent.event_dates)
     message = await callback.message.answer("The event was deleted 🐴"
@@ -191,7 +191,7 @@ async def send_photos(callback: types.CallbackQuery, button: Button, dialog_mana
     """Function to get memorized boto frome the bot (from its database)"""
     with BotDB() as db:
         fetched_photos = db.get_photo(user_id=dialog_manager.current_context().start_data,
-                                      date=dialog_manager.current_context().dialog_data["event_date"])
+                                      date=dialog_manager.dialog_data["event_date"])
 
     if fetched_photos:
         await callback.message.answer("Take your photos! 🎞")
