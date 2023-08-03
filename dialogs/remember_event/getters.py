@@ -11,10 +11,10 @@ async def dates_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     :return: dict -> all event dates
     """
     dates_list = []
-    if dialog_manager.current_context().dialog_data["state"] != "both":
+    if dialog_manager.dialog_data["state"] != "both":
         with BotDB() as db:
             fetched_dates = db.get_dates_by_states(user_id=dialog_manager.current_context().start_data,
-                                                   state=dialog_manager.current_context().dialog_data["state"])
+                                                   state=dialog_manager.dialog_data["state"])
     else:
         with BotDB() as db:
             fetched_dates = db.get_dates(user_id=dialog_manager.current_context().start_data)
@@ -38,7 +38,7 @@ async def event_info_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     """
     with BotDB() as db:
         event_info = db.get_event_by_day(user_id=dialog_manager.current_context().start_data,
-                                         date=dialog_manager.current_context().dialog_data["event_date"])
+                                         date=dialog_manager.dialog_data["event_date"])
 
     event_info_list = list(event_info)
     event_info_list[1] = strftime("%d-%m-%Y, %A", strptime(event_info_list[1], "%Y-%m-%d"))

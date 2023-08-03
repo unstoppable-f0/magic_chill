@@ -65,13 +65,13 @@ class BotDB:
         return event_id
 
     def get_dates(self, user_id):
-        sql_req = """SELECT date FROM events WHERE user_id=(?)"""
+        sql_req = """SELECT date FROM events WHERE user_id=(?) ORDER BY date"""
         self.execute(sql_req, (user_id, ))
         all_dates = self.cur.fetchall()
         return all_dates
 
     def get_dates_by_states(self, user_id, state):
-        sql_req = """SELECT date FROM events WHERE user_id=(?) AND state=(?)"""
+        sql_req = """SELECT date FROM events WHERE user_id=(?) AND state=(?) ORDER BY date"""
         self.execute(sql_req, (user_id, state))
         all_dates_by_state = self.cur.fetchall()
         return all_dates_by_state
