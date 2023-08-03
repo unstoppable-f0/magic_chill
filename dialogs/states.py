@@ -25,6 +25,9 @@ class MemorizeEvent(StatesGroup):
 
 
 class RememberEvent(StatesGroup):
+    """
+    FSM-class for remembering an event -> to look into written events
+    """
     choose_state = State()
     event_dates = State()
     the_event = State()
