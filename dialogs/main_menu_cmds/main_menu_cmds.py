@@ -43,7 +43,3 @@ async def stop(message: Message, dialog_manager: DialogManager) -> None:
     except NoContextError:
         pass
     await message.answer("Our talk has been stopped. If you want to start again - type /start")
-
-
-# some test comments to see if everything works correctly
-# more tests_tests
