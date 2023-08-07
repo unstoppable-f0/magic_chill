@@ -150,15 +150,8 @@ async def photos_input_got(message: types.Message, enter: MessageInput, dialog_m
         uniq_event_id = db.get_exact_event_id(user_id=message.from_user.id,
                                               date=dialog_manager.dialog_data["date"])
 
-        memorized_photos = db.get_photo(user_id=dialog_manager.start_data,
-                                        date=dialog_manager.dialog_data["date"])
-        if memorized_photos:
-            print("Количество айдишников ФОТО в БазеДанных - ", len(memorized_photos))
-        else:
-            print("No photo =/")
-
     await bot.download(file=user_photo,
-                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}.jpg")
+                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_0.jpg")
 
     await message.answer("Got the photo!")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)
@@ -188,11 +181,19 @@ async def input_more_photos(message: types.Message, enter: TextInput, dialog_man
                          new_photo_id=user_photo.file_id)
 
         # сделать названия файлов
-        dir_name = db.get_exact_event_id(user_id=message.from_user.id,
-                                         date=dialog_manager.dialog_data["date"])
+        uniq_event_id = db.get_exact_event_id(user_id=message.from_user.id,
+                                              date=dialog_manager.dialog_data["date"])
+
+        memorized_photos = db.get_photo(user_id=message.from_user.id,
+                                        date=dialog_manager.dialog_data["date"])
+        if memorized_photos:
+            photo_cnt = len(memorized_photos) - 1
+        else:
+            photo_cnt = 0
 
     await bot.download(file=user_photo,
-                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{dir_name}.jpg")
+                       destination=
+                       fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_{photo_cnt}.jpg")
 
     await message.answer("Got your new photo")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)

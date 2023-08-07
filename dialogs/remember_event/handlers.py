@@ -94,7 +94,6 @@ async def change_to_add_photos(callback: types.CallbackQuery, button: Button, di
 
 async def more_photos_to_event(callback: types.CallbackQuery, button: Button, dialog_manager: DialogManager,
                                *args) -> None:
-
     await dialog_manager.switch_to(RememberEvent.the_event)
 
 
@@ -107,7 +106,7 @@ async def add_memes_success(message: types.Message, enter: TextInput, dialog_man
 
     with BotDB() as db:
         db.add_new_memes(new_memes=new_memes,
-                         user_id=dialog_manager.current_context().start_data,
+                         user_id=dialog_manager.start_data,
                          date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Added new memes to the event record, choom 🧐")
@@ -122,7 +121,7 @@ async def add_ppl_success(message: types.Message, enter: TextInput, dialog_manag
 
     with BotDB() as db:
         db.add_new_ppl(new_ppl=new_ppl,
-                       user_id=dialog_manager.current_context().start_data,
+                       user_id=dialog_manager.start_data,
                        date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Added new people to the event record, choom 👯")
@@ -137,7 +136,7 @@ async def add_places_success(message: types.Message, enter: TextInput, dialog_ma
 
     with BotDB() as db:
         db.add_new_places(new_places=new_places,
-                          user_id=dialog_manager.current_context().start_data,
+                          user_id=dialog_manager.start_data,
                           date=dialog_manager.dialog_data["event_date"])
 
     await message.answer("Like to keep moving, hm? Got it 🛵")
@@ -149,17 +148,25 @@ async def add_photo_success(message: types.Message, enter: TextInput, dialog_man
 
     user_photo = message.photo[-1]
     with BotDB() as db:
-        db.add_new_photo(user_id=dialog_manager.current_context().start_data,
+        db.add_new_photo(user_id=dialog_manager.start_data,
                          date=dialog_manager.dialog_data["event_date"],
                          new_photo_id=user_photo.file_id)
 
-        dir_name = db.get_exact_event_id(user_id=message.from_user.id,
-                                         date=dialog_manager.dialog_data["event_date"])
+        uniq_event_id = db.get_exact_event_id(user_id=message.from_user.id,
+                                              date=dialog_manager.dialog_data["event_date"])
 
+        memorized_photos = db.get_photo(user_id=message.from_user.id,
+                                        date=dialog_manager.dialog_data["event_date"])
+
+        if memorized_photos:
+            photo_cnt = len(memorized_photos) - 1
+        else:
+            photo_cnt = 0
 
     # IS THIS THE PROBLEM WITH BACKUPS FOR PHOTOS?
     await bot.download(file=user_photo,
-                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{dir_name}.jpg")
+                       destination=
+                       fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_{photo_cnt}.jpg")
 
     await message.answer("Got that photo!")
     await dialog_manager.switch_to(RememberEvent.ask_more_photos)

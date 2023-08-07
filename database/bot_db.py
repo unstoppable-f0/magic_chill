@@ -136,10 +136,11 @@ class BotDB:
         sql_req = """SELECT photos FROM events WHERE user_id = (?) AND date = (?)"""
         self.execute(sql_req, (user_id, date))
         photo_id = self.cur.fetchone()
-        if photo_id[0]:
+        if not photo_id:
+            return None
+        elif photo_id[0]:
             prep_photo_id = tuple(photo_id[0].split(', '))
 
             return prep_photo_id
-
     # initial db changes comment and git push test
     # one last test
