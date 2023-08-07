@@ -176,7 +176,7 @@ async def delete_event(callback: types.CallbackQuery, button: Button, dialog_man
     """Deleting the event altogether"""
 
     with BotDB() as db:
-        db.delete_event(user_id=dialog_manager.current_context().start_data,
+        db.delete_event(user_id=dialog_manager.start_data,
                         date=dialog_manager.dialog_data["event_date"])
 
     await dialog_manager.switch_to(RememberEvent.event_dates)
@@ -188,9 +188,9 @@ async def delete_event(callback: types.CallbackQuery, button: Button, dialog_man
 
 
 async def send_photos(callback: types.CallbackQuery, button: Button, dialog_manager: DialogManager, *args) -> None:
-    """Function to get memorized boto frome the bot (from its database)"""
+    """Function to get memorized boto from the bot (from its database)"""
     with BotDB() as db:
-        fetched_photos = db.get_photo(user_id=dialog_manager.current_context().start_data,
+        fetched_photos = db.get_photo(user_id=dialog_manager.start_data,
                                       date=dialog_manager.dialog_data["event_date"])
 
     if fetched_photos:
