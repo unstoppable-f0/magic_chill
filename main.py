@@ -16,6 +16,10 @@ from dialogs import main_menu_cmds, remember_event, memorize_event
 from dialogs import test_dialog
 
 
+# logging formats
+LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
+
+
 async def main():
     dp.include_routers(
         main_menu_cmds.main_menu_cmds.router,
@@ -28,5 +32,5 @@ async def main():
     await dp.start_polling(bot, skip_updates=True)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING, filename="chill_log.log", filemode="a", format=LOG_FORMAT)
     asyncio.run(main())
