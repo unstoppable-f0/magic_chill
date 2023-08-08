@@ -1,7 +1,7 @@
 from typing import List
 
-from aiogram import Router
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram import Router, F
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 from aiogram.filters import Command
 
 from aiogram_dialog import DialogManager
@@ -20,8 +20,9 @@ main_menu_buttons = [
         KeyboardButton(text="Poem memos 📝"),
     ],
     [
-        # types.KeyboardButton(text="Statistics 📊")
-        # types.KeyboardButton(text="Randomize a song 🎲"),
+        KeyboardButton(text="Statistics 📊"),
+        KeyboardButton(text="Randomize a song 🎲", web_app=WebAppInfo(
+            url="https://mydeartestingground.000webhostapp.com/")),
     ]
 ]
 main_menu_keyboard = ReplyKeyboardMarkup(keyboard=main_menu_buttons, resize_keyboard=True, one_time_keyboard=True,
@@ -43,3 +44,6 @@ async def stop(message: Message, dialog_manager: DialogManager) -> None:
     except NoContextError:
         pass
     await message.answer("Our talk has been stopped. If you want to start again - type /start")
+
+
+
