@@ -51,7 +51,7 @@ class BotDB:
 
     def get_new_event_number(self, user_id):
         sql_req = """SELECT number FROM events WHERE user_id =(?) ORDER BY number DESC LIMIT 1"""
-        self.execute(sql_req, (user_id, ))
+        self.execute(sql_req, (user_id,))
         result = self.cur.fetchone()
         if result:
             return result[0] + 1
@@ -66,7 +66,7 @@ class BotDB:
 
     def get_dates(self, user_id):
         sql_req = """SELECT date FROM events WHERE user_id=(?) ORDER BY date"""
-        self.execute(sql_req, (user_id, ))
+        self.execute(sql_req, (user_id,))
         all_dates = self.cur.fetchall()
         return all_dates
 
@@ -82,7 +82,7 @@ class BotDB:
         the_event = self.cur.fetchone()
         return the_event
 
-    def add_new_memes(self, new_memes, user_id, date):
+    def add_new_memes(self, new_memes, user_id, date) -> None:
         sql_req_fetch = """SELECT memes FROM events WHERE user_id =(?) AND date = (?)"""
         self.execute(sql_req_fetch, (user_id, date))
         fetched_memes: str = ''.join(self.cur.fetchone())
@@ -91,11 +91,11 @@ class BotDB:
         sql_req = """UPDATE events SET memes = (?) WHERE user_id = (?) AND date = (?)"""
         self.execute(sql_req, (new_and_old_memes, user_id, date))
 
-    def delete_event(self, user_id, date):
+    def delete_event(self, user_id, date) -> None:
         sql_req = """DELETE FROM events WHERE user_id = (?) and date = (?)"""
         self.execute(sql_req, (user_id, date))
 
-    def add_new_ppl(self, new_ppl, user_id, date):
+    def add_new_ppl(self, new_ppl, user_id, date) -> None:
         sql_req_fetch = """SELECT people FROM events WHERE user_id =(?) AND date = (?)"""
         self.execute(sql_req_fetch, (user_id, date))
         fetched_places: str = ''.join(self.cur.fetchone())
@@ -104,7 +104,7 @@ class BotDB:
         sql_req = """UPDATE events SET people = (?) WHERE user_id = (?) AND date = (?)"""
         self.execute(sql_req, (new_and_old_ppl, user_id, date))
 
-    def add_new_places(self, new_places, user_id, date):
+    def add_new_places(self, new_places, user_id, date) -> None:
         sql_req_fetch = """SELECT places FROM events WHERE user_id =(?) AND date = (?)"""
         self.execute(sql_req_fetch, (user_id, date))
         fetched_places: str = ''.join(self.cur.fetchone())
@@ -113,11 +113,11 @@ class BotDB:
         sql_req = """UPDATE events SET places = (?) WHERE user_id = (?) AND date = (?)"""
         self.execute(sql_req, (new_and_old_places, user_id, date))
 
-    def update_photo_column(self, user_id, date, photo_id):
+    def update_photo_column(self, user_id, date, photo_id) -> None:
         sql_req = """UPDATE events SET photos = (?) WHERE user_id = (?) AND date = (?) """
         self.execute(sql_req, (photo_id, user_id, date))
 
-    def add_new_photo(self, user_id, date, new_photo_id):
+    def add_new_photo(self, user_id, date, new_photo_id) -> None:
         sql_req_fetch = """SELECT photos FROM events WHERE user_id = (?) AND date = (?)"""
         self.execute(sql_req_fetch, (user_id, date))
         old_photos = self.cur.fetchone()
@@ -142,5 +142,41 @@ class BotDB:
             prep_photo_id = tuple(photo_id[0].split(', '))
 
             return prep_photo_id
-    # initial db changes comment and git push test
-    # one last test
+
+
+class RickTable(BotDB):
+    @classmethod
+    def pages_sorter(cls, unready_pages: str):
+        """
+        convert string to list of integers, sort them, and convert them back
+        :param unready_pages: string of pages
+        :return: string of sorted pages to the table of Ricquotes
+        """
+        sorted_int_pages = sorted(list(map(int, unready_pages.split())))
+        return " ".join(map(str, sorted_int_pages))
+
+    def create_rick_quotes_table(self) -> None:
+        """Creating a table for making quotes of a great Rich Sanchez (from any Universe)"""
+        self.execute("""CREATE TABLE IF NOT EXISTS rick_quotes(
+                        pages TEXT
+                    )"""
+                     )
+
+    def update_pages(self, pages: str) -> None:
+        """Updating seen pages from the book"""
+        self.execute("""SELECT pages FROM rick_quotes""")
+        seen_pages: tuple = self.cur.fetchone()
+
+        if not seen_pages:
+            sql_req = """INSERT INTO rick_quotes(pages) VALUES (?)"""
+            ready_pages = self.pages_sorter(pages)
+            self.execute(sql_req=sql_req, params=(ready_pages, ))
+        else:
+            self.execute("""SELECT pages FROM rick_quotes""")
+            fetched_pages = self.cur.fetchone()[0]
+            concatenation = " ".join((fetched_pages, pages))
+            ready_concatenation = self.pages_sorter(concatenation)
+
+            sql_req = """UPDATE rick_quotes SET pages = (?) """
+            self.execute(sql_req=sql_req, params=(ready_concatenation, ))
+
