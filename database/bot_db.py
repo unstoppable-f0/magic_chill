@@ -1,4 +1,25 @@
 import sqlite3 as sq
+import logging
+
+from typing import Optional
+
+
+"""Settings up logs for the database """
+# for logging file and console output
+
+logger_db = logging.getLogger(__name__)
+logger_db.setLevel(logging.WARNING)
+
+logger_stream_db = logging.StreamHandler()
+logger_stream_db.setLevel(logging.WARNING)
+
+handler_log_db = logging.FileHandler(f"{__name__}.log", mode="a", encoding="utf-8")
+formatter_log_db = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
+
+handler_log_db.setFormatter(formatter_log_db)
+logger_db.addHandler(handler_log_db)
+logger_stream_db.setFormatter(formatter_log_db)
+logger_db.addHandler(logger_stream_db)
 
 
 class BotDB:
@@ -144,7 +165,7 @@ class BotDB:
             return prep_photo_id
 
 
-class RickTable(BotDB):
+class RickDB(BotDB):
     @classmethod
     def pages_sorter(cls, unready_pages: str):
         """
@@ -179,4 +200,18 @@ class RickTable(BotDB):
 
             sql_req = """UPDATE rick_quotes SET pages = (?) """
             self.execute(sql_req=sql_req, params=(ready_concatenation, ))
+
+    def get_pages(self) -> Optional[str]:
+        try:
+            self.execute("""SELECT pages FROM rick_quotes""")
+            fetched_pages = self.cur.fetchone()[0]
+
+            return fetched_pages
+
+        except TypeError:
+            # if db fetches 'None'
+            logger_db.warning("Ricquotes are empty")
+            return None
+
+
 

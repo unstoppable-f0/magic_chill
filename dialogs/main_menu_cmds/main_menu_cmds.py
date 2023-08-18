@@ -1,6 +1,6 @@
 from typing import List
 
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 from aiogram.filters import Command
 
@@ -10,19 +10,19 @@ from aiogram_dialog.api.exceptions import NoContextError
 router = Router()
 
 """Keyboard for main menu"""
-main_menu_buttons = [
+main_menu_buttons: List[List] = [
     [
         KeyboardButton(text="Memorize an event 🗓️"),
         KeyboardButton(text="Remember events 💭")
     ],
     [
-        KeyboardButton(text="Book memos 📚"),
-        KeyboardButton(text="Poem memos 📝"),
+        KeyboardButton(text="Literature 📚"),
+        KeyboardButton(text="Quotes of 💭"),
     ],
     [
-        KeyboardButton(text="Statistics 📊"),
         KeyboardButton(text="Randomize a song 🎲", web_app=WebAppInfo(
             url="https://mydeartestingground.000webhostapp.com/")),
+        KeyboardButton(text="Statistics 📊"),
     ]
 ]
 main_menu_keyboard = ReplyKeyboardMarkup(keyboard=main_menu_buttons, resize_keyboard=True, one_time_keyboard=True,

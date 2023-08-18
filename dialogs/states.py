@@ -41,3 +41,11 @@ class RememberEvent(StatesGroup):
     ask_more_photos = State()
 
     event_delete_assure = State()
+
+
+class Ricquotes(StatesGroup):
+    """
+    FSM-class for accessing and using of the 'Quotes of'-scenario
+    -> Ricquotes: both -memorizing- & -remembering-
+    """
+    start_memorizing = State()
