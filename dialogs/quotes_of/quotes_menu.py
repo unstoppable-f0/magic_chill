@@ -1,10 +1,8 @@
 from typing import List
 
 from aiogram import Router, F
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
-from aiogram.filters import Command
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
-from aiogram_dialog import DialogManager
 
 router = Router()
 
