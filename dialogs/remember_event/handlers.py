@@ -13,7 +13,7 @@ from database.bot_db import BotDB
 from dialogs.states import RememberEvent
 
 
-@dp.message(F.text == "Remember events 💭")
+@dp.message(F.text == "Remember events 🗓")
 async def start_remembering(message: types.Message, dialog_manager: DialogManager) -> None:
     """Starting Remembering_Event-scenario"""
     await dialog_manager.start(state=RememberEvent.choose_state, mode=StartMode.RESET_STACK, data=message.from_user.id)

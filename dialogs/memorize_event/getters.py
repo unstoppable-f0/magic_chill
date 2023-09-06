@@ -4,10 +4,14 @@ import datetime
 # All getters should return a dict for aiogram-dialog library
 
 async def date_getter(**kwargs) -> dict:
-    """Function for getting today's date and sending it to the Date part (1st part) of Memo-dialog"""
-    today_dict = {"date_today": datetime.date.today().strftime('%d-%m-%y')}
+    """Function for getting date and sending it to the Date part (1st part) of Memo-dialog"""
+    today = datetime.date.today()
+    yesterday = (today - datetime.timedelta(days=1))
 
-    return today_dict
+    dates_dict = {"date_today": today.strftime('%d-%m-%y'),
+                  "date_yesterday": yesterday.strftime('%d-%m-%y')}
+
+    return dates_dict
 
 
 async def places_getter(**kwargs) -> dict:
@@ -44,17 +48,17 @@ async def get_friends(**kwargs) -> dict:
                ("Кирилл 🧑‍🚀️", "Кирилл 🧑‍🚀"),
                ("Потап 👨‍🏭", "Потап 👨‍🏭"),
                ("Лёха 👨‍🌾", "Лёха 👨‍🌾"),
-               ("Диман 🧑‍🍳", "Диман 🧑‍🍳"),
+               ("Миша 👨‍💻", "Миша 👨‍💻"),
                ("Паша 🧛", "Паша 🧛"),
                ("Лёня 👷🏻‍♂️", "Лёня 🏻‍♂️"),
-               ("Миша 👨‍💻", "Миша 👨‍💻"),
+               ("Диман 🧑‍🍳", "Диман 🧑‍🍳"),
                ("Лёха Т. 💂‍♂️", "Лёха Т. 💂‍♂"),
-               ("Рита 👰‍♀️", "Рита 👰‍♀"),
+               ("Мари 🙇‍♀️", "Мари 🙇‍♀️"),
                ("Варя 🧝‍♀️", "Варя 🧝‍♀️"),
                ("Настя 🧚‍♀️️", "Настя 🧚‍♀️️"),
-               ("Мари 🙇‍♀️", "Мари 🙇‍♀️"),
                ("Паша К 😎", "Паша К 😎"),
-               ("Али 🥷", "Али 🥷")
+               ("Али 🥷", "Али 🥷"),
+               ("Mutter 👩‍👦", "Mutter 👩‍👦")
                ]
 
     out_dict = {

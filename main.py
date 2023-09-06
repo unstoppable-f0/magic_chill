@@ -12,7 +12,7 @@ from loader import bot, dp
 # from dialogs.setup_bot.dialogs import setup_bot_dialog
 # from dialogs.view_memes.dialogs import view_memes_dialog
 
-from dialogs import main_menu_cmds, remember_event, memorize_event, quotes_of
+from dialogs import main_menu_cmds, remember_event, memorize_event, quotes_of, statistics
 from dialogs import test_dialog
 
 
@@ -27,6 +27,7 @@ async def main():
         memorize_event.dialogs.memorize_dialog,
         quotes_of.quotes_menu.router,
         quotes_of.ricquotes.dialogs.ricquotes_dialog,
+        statistics.handlers.router,
         test_dialog.test.router     # clean up testing branch after completing work
         # view_memes_dialog
     )

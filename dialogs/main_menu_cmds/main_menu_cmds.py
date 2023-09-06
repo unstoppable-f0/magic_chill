@@ -12,8 +12,8 @@ router = Router()
 """Keyboard for main menu"""
 main_menu_buttons: List[List] = [
     [
-        KeyboardButton(text="Memorize an event 🗓️"),
-        KeyboardButton(text="Remember events 💭")
+        KeyboardButton(text="Memorize an event ✍️️"),
+        KeyboardButton(text="Remember events 🗓")
     ],
     [
         KeyboardButton(text="Literature 📚"),
