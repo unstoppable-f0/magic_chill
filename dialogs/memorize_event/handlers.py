@@ -1,5 +1,5 @@
 from time import strptime, strftime
-from datetime import date
+from datetime import date, timedelta
 
 from aiogram import types
 from aiogram import F
@@ -15,7 +15,7 @@ from dialogs.states import MemorizeEvent
 
 
 # Starting a Memorize-dialog scenario
-@dp.message(F.text == "Memorize an event 🗓️")
+@dp.message(F.text == "Memorize an event ✍️️")
 async def start_memorizing(message: types.Message, dialog_manager: DialogManager) -> None:
     """Function for starting the MEMORIZING-scenario"""
     await dialog_manager.start(state=MemorizeEvent.date, mode=StartMode.RESET_STACK)
@@ -27,6 +27,15 @@ async def date_to_places(callback: types.CallbackQuery, button: Button, dialog_m
     """Switching to the Places phase of the Memo-dialog"""
     today = date.today().strftime('%Y-%m-%d')
     dialog_manager.dialog_data["date"] = today
+
+    await dialog_manager.switch_to(MemorizeEvent.places)
+
+
+async def yesterday_to_places(callback: types.CallbackQuery, button: Button, dialog_manager: DialogManager,
+                              *args) -> None:
+    """Switching to the Places phase af the Memo-dialog"""
+    yesterday = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    dialog_manager.dialog_data["date"] = yesterday
 
     await dialog_manager.switch_to(MemorizeEvent.places)
 

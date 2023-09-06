@@ -25,6 +25,11 @@ date_window = Window(
             on_click=handlers.date_to_places
         ),
         Button(
+            Format("Yesterday - {date_yesterday}"),
+            id="is_yesterday",
+            on_click=handlers.yesterday_to_places
+        ),
+        Button(
             Const("Another day"),
             id="not_today",
             on_click=handlers.next_state
