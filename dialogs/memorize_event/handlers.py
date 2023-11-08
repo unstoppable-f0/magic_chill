@@ -1,5 +1,6 @@
 from time import strptime, strftime
 from datetime import date, timedelta
+import os
 
 from aiogram import types
 from aiogram import F
@@ -159,8 +160,14 @@ async def photos_input_got(message: types.Message, enter: MessageInput, dialog_m
         uniq_event_id = db.get_exact_event_id(user_id=message.from_user.id,
                                               date=dialog_manager.dialog_data["date"])
 
+    destination_dir = os.path.abspath(os.path.join(os.getcwd(), 'chill_photos'))
+    print(destination_dir)
+
     await bot.download(file=user_photo,
-                       destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_0.jpg")
+                       destination=fr"{destination_dir}{os.path.sep}{uniq_event_id}_0.jpg")
+    # await bot.download(file=user_photo,
+    #                    destination=fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_0.jpg")
+
 
     await message.answer("Got the photo!")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)
@@ -200,9 +207,12 @@ async def input_more_photos(message: types.Message, enter: TextInput, dialog_man
         else:
             photo_cnt = 0
 
+    destination_dir = os.path.abspath(os.path.join(os.getcwd(), 'chill_photos'))
     await bot.download(file=user_photo,
-                       destination=
-                       fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_{photo_cnt}.jpg")
+                       destination=fr"{destination_dir}{os.path.sep}{uniq_event_id}_{photo_cnt}.jpg")
+    # await bot.download(file=user_photo,
+    #                    destination=
+    #                    fr"C:\Me\Coding_Python\Projects\Magic_Chill\chill_photos\{uniq_event_id}_{photo_cnt}.jpg")
 
     await message.answer("Got your new photo")
     await dialog_manager.switch_to(MemorizeEvent.ask_more_photos)
