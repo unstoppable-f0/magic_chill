@@ -9,8 +9,7 @@ from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.input import TextInput, MessageInput
 
-from main import dp
-from loader import bot
+from loader import bot, dp
 from database.bot_db import BotDB
 from dialogs.states import MemorizeEvent
 
