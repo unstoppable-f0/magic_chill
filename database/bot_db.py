@@ -1,5 +1,6 @@
 import sqlite3 as sq
 import logging
+import os
 
 from typing import Optional
 
@@ -23,7 +24,7 @@ logger_db.addHandler(logger_stream_db)
 
 
 class BotDB:
-    __DB_NAME = r"C:\Me\Coding_Python\Projects\Magic_Chill\database\chill_base.db"
+    __DB_NAME = fr"{os.path.abspath(os.path.join(os.getcwd(), 'database'))}{os.path.sep}chill_base.db"
 
     def __init__(self):
         self.conn = sq.connect(self.__DB_NAME)
