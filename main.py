@@ -15,8 +15,9 @@ from loader import bot, dp
 from dialogs import main_menu_cmds, remember_event, memorize_event, quotes_of, statistics
 try:
     from dialogs import test_dialog
+    testing = True
 except ImportError:
-    pass
+    testing = False
 
 
 # logging formats
@@ -31,9 +32,10 @@ async def main():
         quotes_of.quotes_menu.router,
         quotes_of.ricquotes.dialogs.ricquotes_dialog,
         statistics.handlers.router,
-        test_dialog.test.router     # clean up testing branch after completing work
         # view_memes_dialog
     )
+    if testing:
+        dp.include_router(test_dialog.test.router)     # clean up testing branch after completing work
     setup_dialogs(dp)  # aiogram_dialog thing
     await dp.start_polling(bot, skip_updates=True)
 
