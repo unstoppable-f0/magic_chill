@@ -13,7 +13,10 @@ from loader import bot, dp
 # from dialogs.view_memes.dialogs import view_memes_dialog
 
 from dialogs import main_menu_cmds, remember_event, memorize_event, quotes_of, statistics
-from dialogs import test_dialog
+try:
+    from dialogs import test_dialog
+except ImportError:
+    pass
 
 
 # logging formats
