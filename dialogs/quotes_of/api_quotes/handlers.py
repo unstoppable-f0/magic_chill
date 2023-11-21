@@ -1,7 +1,9 @@
 from . import getters  # MAYBE TROUBLES WITH THIS IMPORT
 from ..quotes_menu import router
 
-import requests
+from typing import Optional
+
+import aiohttp
 import json
 from random import choice
 
@@ -13,23 +15,29 @@ quote_builder = InlineKeyboardBuilder()
 quote_builder.row(InlineKeyboardButton(text="Hit me another", callback_data="more_quotes"))
 
 
-def get_quote():
-    """getting a quote with api"""
+async def get_quote() -> Optional[dict]:
+    """Получить цитату по API-сервиса и выдать из неё словарь"""
 
-    category = choice(getters.categories)
-    api_url = 'https://api.api-ninjas.com/v1/quotes?category={}'.format(category)
-    response = requests.get(api_url, headers={'X-Api-Key': 'GvQEqVdLigY5wM5yLpu4Lw==CgQcF8Xnmu2P9JwM'})
-    quote_data = json.loads(response.text)
-    try:
-        quote_dict: dict = quote_data[0]
-        return quote_dict
-    except IndexError:
-        return False
+    async with aiohttp.ClientSession() as session:
+        category = choice(getters.categories)
+        api_url = f'https://api.api-ninjas.com/v1/quotes?category={category}'
+        async with session.get(api_url, headers={'X-Api-Key': 'GvQEqVdLigY5wM5yLpu4Lw==CgQcF8Xnmu2P9JwM'}) as response:
+            # json part
+            try:
+                quote_text = await response.text()
+                quote_data = json.loads(quote_text)
+                quote_dict = quote_data[0]
+                return quote_dict
+
+            except IndexError:
+                return None
 
 
 @router.message(F.text == "Explore human minds 🧠")
 async def send_quote(message: Message):
-    quote_dict = get_quote()
+    """Отправляем сообщение с цитатой в ответ на фразу (кнопку)"""
+
+    quote_dict = await get_quote()
     if quote_dict:
         await message.answer(f'"{quote_dict.get("quote")}" ©\n\n'
                              f'<b>{quote_dict.get("author")}</b> on <i>{quote_dict.get("category")}</i>',
@@ -40,7 +48,9 @@ async def send_quote(message: Message):
 
 @router.callback_query(F.data == "more_quotes")
 async def more_quotes(callback: CallbackQuery) -> None:
-    quote_dict = get_quote()
+    """Отправляем сообщение с цитатой в ответ на нажатие inline-кнопки"""
+
+    quote_dict = await get_quote()
     if quote_dict:
         await callback.message.answer(f'"{quote_dict.get("quote")}" ©\n\n'
                                       f'<b>{quote_dict.get("author")}</b> on <i>{quote_dict.get("category")}</i>',
