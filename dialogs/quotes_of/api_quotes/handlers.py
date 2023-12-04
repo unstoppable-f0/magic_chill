@@ -11,6 +11,7 @@ from aiogram import F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+
 quote_builder = InlineKeyboardBuilder()
 quote_builder.row(InlineKeyboardButton(text="Hit me another", callback_data="more_quotes"))
 
