@@ -1,16 +1,18 @@
-from . import getters
-from ..quotes_menu import router
-from utils.translator.google_translator import EasyGoogleTranslate
-
 from typing import Optional
 
 import aiohttp
 import json
 from random import choice
+from urllib.parse import quote
 
 from aiogram import F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+
+from dialogs.quotes_of.api_quotes import getters
+from dialogs.quotes_of.quotes_menu import router
+from utils.translator.google_translator import EasyGoogleTranslate
 
 
 def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
@@ -95,6 +97,13 @@ async def translate(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == 'who_author')
 async def who_author(callback: CallbackQuery) -> None:
     """Searches for author in the internet"""
+    quote_text = callback.message.text
 
-    print(callback.message.text)
-    await callback.message.answer(text='"Будет информация об авторе"')
+    await callback.message.edit_text(text=f'{create_google_search_link("Plato")}')
+
+
+def create_google_search_link(author_name: str) -> str:
+    google_base_link = 'https://www.google.com/search?q={}'
+    prepared_author_name = quote(author_name.encode('utf-8'))
+
+    return google_base_link.format(prepared_author_name)
