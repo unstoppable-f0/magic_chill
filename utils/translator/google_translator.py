@@ -5,7 +5,7 @@ import os
 import html
 import urllib.parse
 
-import aiohttp
+from aiohttp import ClientSession, ClientTimeout
 
 
 class EasyGoogleTranslate:
@@ -20,6 +20,10 @@ class EasyGoogleTranslate:
         If source language is not specified, it will detect source language automatically.
         This application supports multi thread translation, you can use it to translate multiple languages at once.
         Detailed language list can be found here:  https://cloud.google.com/translate/docs/languages
+
+        Changes by Ilya Loginov/ admiral-benb0w / unstoppable:
+            1) Remade into asynchronous functions
+            2) Switched off multi-language translation via threads (for now)
 
 
         Examples:
@@ -53,15 +57,17 @@ class EasyGoogleTranslate:
                 print(result)
     """
 
-    AIO_TIMEOUT = aiohttp.ClientTimeout(total=300)
+    # AIO_TIMEOUT = aiohttp.ClientTimeout(total=300)
 
-    def __init__(self, source_language='auto', target_language='tr', timeout=5):
+    def __init__(self, source_language='auto', target_language='tr', timeout=300):
         self.source_language = source_language
         self.target_language = target_language
-        self.timeout = timeout
+        self.timeout = ClientTimeout(total=timeout)
         self.pattern = r'(?s)class="(?:t0|result-container)">(.*?)<'
 
     def make_request(self, target_language: str, source_language: str, text: str, timeout: int):
+        """Make a usual request"""
+
         escaped_text = urllib.parse.quote(text.encode('utf8'))
         url = 'https://translate.google.com/m?tl=%s&sl=%s&q=%s' % (target_language, source_language, escaped_text)
         response = requests.get(url, timeout=timeout)
@@ -75,8 +81,10 @@ class EasyGoogleTranslate:
             exit(0)
         return html.unescape(result[0])
 
-    async def aio_make_request(self, target_language: str, source_language: str, text: str):
-        async with aiohttp.ClientSession(timeout=self.AIO_TIMEOUT) as session:
+    async def aio_make_request(self, target_language: str, source_language: str, text: str, timeout: 'ClientTimeout'):
+        """Make an asynchronous request"""
+
+        async with ClientSession(timeout=timeout) as session:
             escaped_text = urllib.parse.quote(text.encode('utf8'))
             url = 'https://translate.google.com/m?tl=%s&sl=%s&q=%s' % (target_language, source_language, escaped_text)
             async with session.get(url) as response:
@@ -96,20 +104,39 @@ class EasyGoogleTranslate:
             target_language = self.target_language
         if not source_language:
             source_language = self.source_language
-        # if not timeout:
-        #     timeout = self.timeout
+        if not timeout:
+            timeout = self.timeout
         if len(text) > 5000:
             print('\nError: It can only detect 5000 characters at once. (%d characters found.)'%(len(text)))
             exit(0)
-        # if type(target_language) is list:
-        #     with concurrent.futures.ThreadPoolExecutor() as executor:
-        #         futures = [executor.submit(self.make_request, target, source_language, text, timeout) for target in target_language]
-        #         return_value = [f.result() for f in futures]
-        #         return return_value
-        # return self.make_request(target_language, source_language, text, timeout)
-        return self.aio_make_request(target_language, source_language, text)
+        return self.aio_make_request(target_language, source_language, text, timeout)
 
+    # NOTE:: Old translate func with concurrent features. Won't be using them, at least in the nearest future:
 
+    # def old_translate(self, text, target_language='', source_language='', timeout=''):
+    #     if not target_language:
+    #         target_language = self.target_language
+    #     if not source_language:
+    #         source_language = self.source_language
+    #     if not timeout:
+    #         timeout = self.timeout
+    #     if len(text) > 5000:
+    #         print('\nError: It can only detect 5000 characters at once. (%d characters found.)'%(len(text)))
+    #         exit(0)
+    #     if type(target_language) is list:
+    #         with concurrent.futures.ThreadPoolExecutor() as executor:
+    #             futures = [
+    #               executor.submit(
+    #                   self.make_request,
+    #                   target, source_language,
+    #                   text,
+    #                   timeout
+    #               ) for target in target_language
+    #               ]
+    #             return_value = [f.result() for f in futures]
+    #             return return_value
+    #     return self.make_request(target_language, source_language, text, timeout)
+    #     return self.aio_make_request(target_language, source_language, text)
 
     def translate_file(self, file_path, target_language='', source_language='', timeout=''):
         if not os.path.isfile(file_path):
