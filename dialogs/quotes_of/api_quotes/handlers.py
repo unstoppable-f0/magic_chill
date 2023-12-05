@@ -1,4 +1,4 @@
-from . import getters  # MAYBE TROUBLES WITH THIS IMPORT
+from . import getters
 from ..quotes_menu import router
 
 from typing import Optional
@@ -11,9 +11,14 @@ from aiogram import F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
-quote_builder = InlineKeyboardBuilder()
-quote_builder.row(InlineKeyboardButton(text="Hit me another", callback_data="more_quotes"))
+quote_inline_builder = InlineKeyboardBuilder()
+quote_inline_buttons = [
+    InlineKeyboardButton(text="Перевод на русский 🇷🇺", callback_data='translate'),
+    InlineKeyboardButton(text="Who's author?", callback_data='who_author')
+]
+quote_inline_builder.row(InlineKeyboardButton(text="Hit me another", callback_data="more_quotes"))
+quote_inline_builder.add(*quote_inline_buttons)
+quote_inline_builder.adjust(1)
 
 
 async def get_quote() -> Optional[dict]:
@@ -42,7 +47,7 @@ async def send_quote(message: Message):
     if quote_dict:
         await message.answer(f'"{quote_dict.get("quote")}" ©\n\n'
                              f'<b>{quote_dict.get("author")}</b> on <i>{quote_dict.get("category")}</i>',
-                             reply_markup=quote_builder.as_markup())
+                             reply_markup=quote_inline_builder.as_markup())
     else:
         await message.answer("Something gone wrong. Please, try again or contact the developer")
 
@@ -55,6 +60,20 @@ async def more_quotes(callback: CallbackQuery) -> None:
     if quote_dict:
         await callback.message.answer(f'"{quote_dict.get("quote")}" ©\n\n'
                                       f'<b>{quote_dict.get("author")}</b> on <i>{quote_dict.get("category")}</i>',
-                                      reply_markup=quote_builder.as_markup())
+                                      reply_markup=quote_inline_builder.as_markup())
     else:
         await callback.message.answer("Something gone wrong. Please, try again or contact the developer")
+
+
+@router.callback_query(F.data == 'translate')
+async def translate(callback: CallbackQuery) -> None:
+    """Translates the message to russian via parsing google-translate"""
+
+    await callback.message.edit_text('Будет перевод, когда-нибудь')
+
+
+@router.callback_query(F.data == 'who_author')
+async def who_author(callback: CallbackQuery) -> None:
+    """Searches for author in the internet"""
+
+    pass
