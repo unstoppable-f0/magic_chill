@@ -24,7 +24,7 @@ def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
     # Collecting keys of our future keyboard
     quote_inline_buttons = [
         InlineKeyboardButton(text="Hit me another 🗞", callback_data="more_quotes"),
-        InlineKeyboardButton(text="Who's author? 🤵‍♀️🤵‍♂️", callback_data='who_author')
+        InlineKeyboardButton(text="Who's author? 🤵‍♀️🤵‍♂️", callback_data='who_is_author')
     ]
     if not translated:  # checking if the quote is already translated
         quote_inline_buttons.append(InlineKeyboardButton(text="Перевод на русский 🇷🇺", callback_data='translate'))
@@ -94,10 +94,11 @@ async def translate(callback: CallbackQuery) -> None:
                                      reply_markup=quote_inline_keyboard(translated=True))
 
 
-@router.callback_query(F.data == 'who_author')
-async def who_author(callback: CallbackQuery) -> None:
+@router.callback_query(F.data == 'who_is_author')
+async def who_is_author(callback: CallbackQuery) -> None:
     """Searches for author in the internet"""
     quote_text = callback.message.text
+    print(quote_text.split('©\n\n')[1].split(' on'))
 
     await callback.message.edit_text(text=f'{create_google_search_link("Plato")}')
 
