@@ -3,7 +3,6 @@ from typing import Optional
 import aiohttp
 import json
 from random import choice
-from urllib.parse import quote
 
 from aiogram import F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
@@ -11,7 +10,9 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 from dialogs.quotes_of.api_quotes import getters
+from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter
 from dialogs.quotes_of.quotes_menu import router
+
 from utils.translator.google_translator import EasyGoogleTranslate
 
 
@@ -33,6 +34,22 @@ def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
     quote_inline_builder.adjust(1)
 
     return quote_inline_builder.as_markup()
+
+
+def author_inline_keyboard(author_name: str) -> InlineKeyboardMarkup:
+    """Construct an inline keyboard for message answer about the author of the sent quote"""
+
+    author_inline_builder = InlineKeyboardBuilder()
+
+    author_inline_buttons = [
+        InlineKeyboardButton(text='Перейти на википедию', callback_data='author_wiki'),
+        InlineKeyboardButton(text='Google him/her!', url=f'{create_google_search_link(author_name)}')
+    ]
+
+    author_inline_builder.add(*author_inline_buttons)
+    author_inline_builder.adjust(1)
+
+    return author_inline_builder.as_markup()
 
 
 async def get_quote() -> Optional[dict]:
@@ -85,8 +102,12 @@ async def translate(callback: CallbackQuery) -> None:
 
     translator = EasyGoogleTranslate(source_language='en', target_language='ru')
     translated_quote = await translator.translate(callback.message.text)
+    print(translated_quote.split('©'))
+    entities = callback.message.entities
+    bold_ent = entities[0].extract_from(callback.message.text)
+    print(bold_ent)
 
-    await callback.message.edit_text(text=f'{callback.message.text}'
+    await callback.message.edit_text(text=f'{callback.message.html_text}'
                                           f'\n'
                                           f'{"-"*35}'
                                           f'\n'
@@ -97,14 +118,14 @@ async def translate(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == 'who_is_author')
 async def who_is_author(callback: CallbackQuery) -> None:
     """Searches for author in the internet"""
+
     quote_text = callback.message.text
-    print(quote_text.split('©\n\n')[1].split(' on'))
 
-    await callback.message.edit_text(text=f'{create_google_search_link("Plato")}')
+    # Translated text is larger than just the original. So it takes a larger index instead
+    split_quote = quote_text.split('©\n\n')
+    if len(split_quote) == 2:
+        author_name = split_quote[1].split(' on')[0]
+    else:
+        author_name = split_quote[2].split(' о')[0]
 
-
-def create_google_search_link(author_name: str) -> str:
-    google_base_link = 'https://www.google.com/search?q={}'
-    prepared_author_name = quote(author_name.encode('utf-8'))
-
-    return google_base_link.format(prepared_author_name)
+    await callback.message.answer(text=author_name, reply_markup=author_inline_keyboard(author_name))
