@@ -72,7 +72,7 @@ async def get_quote() -> Optional[dict]:
 
 @router.message(F.text == "Explore human minds 🧠")
 async def send_quote(message: Message):
-    """Отправляем сообщение с цитатой в ответ на фразу (кнопку)"""
+    """Sending a message as answer to the text"""
 
     quote_dict = await get_quote()
     if quote_dict:
@@ -85,7 +85,7 @@ async def send_quote(message: Message):
 
 @router.callback_query(F.data == "more_quotes")
 async def more_quotes(callback: CallbackQuery) -> None:
-    """Отправляем сообщение с цитатой в ответ на нажатие inline-кнопки"""
+    """Sending a message as answer to the pushing of inline-button"""
 
     quote_dict = await get_quote()
     if quote_dict:
@@ -98,20 +98,23 @@ async def more_quotes(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == 'translate')
 async def translate(callback: CallbackQuery) -> None:
-    """Translates the message to russian via parsing google-translate"""
+    """
+    Translates the message to russian via parsing google-translate
+    Formatting the message using message entities and function 'translate_formatter()' from .utils.py
+    """
 
     translator = EasyGoogleTranslate(source_language='en', target_language='ru')
     translated_quote = await translator.translate(callback.message.text)
-    print(translated_quote.split('©'))
+
     entities = callback.message.entities
-    bold_ent = entities[0].extract_from(callback.message.text)
-    print(bold_ent)
+    author_entity = entities[0].extract_from(callback.message.text)
+    formatted_translated_quote = translate_formatter(translated_quote=translated_quote, author_entity=author_entity)
 
     await callback.message.edit_text(text=f'{callback.message.html_text}'
                                           f'\n'
                                           f'{"-"*35}'
                                           f'\n'
-                                          f'{translated_quote}',
+                                          f'{formatted_translated_quote}',
                                      reply_markup=quote_inline_keyboard(translated=True))
 
 
@@ -124,8 +127,8 @@ async def who_is_author(callback: CallbackQuery) -> None:
     # Translated text is larger than just the original. So it takes a larger index instead
     split_quote = quote_text.split('©\n\n')
     if len(split_quote) == 2:
-        author_name = split_quote[1].split(' on')[0]
+        author_name = split_quote[1].split(' on ')[0]
     else:
-        author_name = split_quote[2].split(' о')[0]
+        author_name = split_quote[2].split(' о ')[0]
 
     await callback.message.answer(text=author_name, reply_markup=author_inline_keyboard(author_name))
