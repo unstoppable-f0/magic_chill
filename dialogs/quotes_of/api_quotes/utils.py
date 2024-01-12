@@ -22,6 +22,7 @@ def translate_formatter(translated_quote: str, author_entity: str) -> str:
 
     # beautifying the lower quote string
     translated_lower_quote = translated_quote[1].split()
+    print(translated_lower_quote)
 
     for name_part_index in range(name_length-1):
         translated_lower_quote[name_part_index] += ' '
@@ -29,10 +30,14 @@ def translate_formatter(translated_quote: str, author_entity: str) -> str:
     translated_lower_quote.insert(0, '\n\n<b>')
     translated_lower_quote.insert(name_length+1, '</b>')
     translated_lower_quote[name_length+2] = ' о '
+
+    # if translated_lower_quote[]
+
     translated_lower_quote.insert(name_length+2, '<i>')
     translated_lower_quote.insert(translated_lower_quote.index(translated_lower_quote[-1])+1, '</i>')
 
     # тема словосочетание тоже может быть несколько слов (прим.: окружающая среда)
+    # ещё можно допилить определение гласной буквы для "о/об"
 
     translated_lower_quote_str = ''.join(translated_lower_quote)
 
