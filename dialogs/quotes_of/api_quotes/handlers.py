@@ -56,8 +56,7 @@ async def get_quote() -> Optional[dict]:
     """Get a quote via async API-request in the json format"""
 
     async with aiohttp.ClientSession() as session:
-        # category = choice(getters.categories)
-        category = "environmental"
+        category = choice(getters.categories)
         api_url = f'https://api.api-ninjas.com/v1/quotes?category={category}'
         async with session.get(api_url, headers={'X-Api-Key': 'GvQEqVdLigY5wM5yLpu4Lw==CgQcF8Xnmu2P9JwM'}) as response:
             # json part
