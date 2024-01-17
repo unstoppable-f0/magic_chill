@@ -92,8 +92,7 @@ class EasyGoogleTranslate:
                 result = result.encode('utf8').decode('utf8')
                 result = re.findall(self.pattern, result)
                 if not result:
-                    print('\nError: Unknown error.')
-                    f = open('error.txt')
+                    f = open('error.txt')   # should write to log in here in case of an error
                     f.write(await response.text())
                     f.close()
                     exit(0)
