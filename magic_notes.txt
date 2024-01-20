@@ -1,0 +1,24 @@
+Magic Notes:
+
+#############
+21/11/23
+--------
+
+-- Quotes API --
+
+0) remade in asynchronous paradigm
+1) Make an ability to translate
+2) Make an ability to get a short information topic about author with a link to the source-site
+
+
+^^^^Перевод
+
+Yandex.Translate --> бесплатный, только требует, чтобы под переводом было:
+"Переведено сервисом «Яндекс Переводчик»" с активной ссылкой на страницу "https://translate.yandex.ru/"
+
+*** В день переводит до 50.000 слов
+
+ОТМЕНА --> яндекс стал платным 2 года назад
+
+
+-- LibreTranslate.com
