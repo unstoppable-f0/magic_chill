@@ -4,6 +4,7 @@ import aiohttp
 import asyncio
 import json
 
+from pprint import pprint
 
 # async def get_quote() -> Optional[dict]:
 #     """Get a quote via async API-request in the json format"""
@@ -22,13 +23,15 @@ import json
 #                 return None
 
 
-async def get_summary(name: str = None) -> Optional[dict]:
+async def get_summary(title: str = None) -> Optional[dict]:
     """Getting the summary by the name from the Wikipedia"""
 
     async with aiohttp.ClientSession() as session:
-        params = {'action': 'parse',
-                  'page': 'Harry Potter',
-                  'summary': '',
+        params = {'action': 'query',
+                  'prop': 'extracts',
+                  'titles': title,
+                  'explaintext': 1,
+                  'exsentences': 10,
                   'format': 'json'}
         wiki_url = f'https://en.wikipedia.org/w/api.php'
 
@@ -38,8 +41,8 @@ async def get_summary(name: str = None) -> Optional[dict]:
 
 
 async def main():
-    result = await get_summary()
-    print(result['parse']['text']['*'])
+    result = await get_summary(title='Abraham Lincoln')
+    pprint(result['query'])
 
 
 if __name__ == '__main__':
