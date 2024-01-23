@@ -3,33 +3,23 @@ from typing import Optional
 import aiohttp
 import asyncio
 import json
+from multidict import MultiDict
+from pprint import pprint   # TESTING PURPOSES
 
 
-# async def get_quote() -> Optional[dict]:
-#     """Get a quote via async API-request in the json format"""
-#
-#     async with aiohttp.ClientSession() as session:
-#         api_url = f'https://api.api-ninjas.com/v1/quotes?category={category}'
-#         async with session.get(api_url, headers={'X-Api-Key': 'Bubba'}) as response:
-#             # json part
-#             try:
-#                 quote_text = await response.text()
-#                 quote_data = json.loads(quote_text)
-#                 quote_dict = quote_data[0]
-#                 return quote_dict
-#
-#             except IndexError:
-#                 return None
-
-
-async def get_summary(name: str = None) -> Optional[dict]:
+async def get_summary(title: str = None) -> Optional[dict]:
     """Getting the summary by the name from the Wikipedia"""
 
     async with aiohttp.ClientSession() as session:
-        params = {'action': 'parse',
-                  'page': 'Harry Potter',
-                  'summary': '',
-                  'format': 'json'}
+        params = MultiDict([
+            ('action', 'query'),
+            ('prop', 'extracts|info'),
+            ('titles', title),
+            ('explaintext', 1),
+            ('exsentences', 5),
+            ('format', 'json'),
+            ('inprop', 'url')
+        ])
         wiki_url = f'https://en.wikipedia.org/w/api.php'
 
         async with session.get(wiki_url, params=params) as response:
@@ -38,8 +28,8 @@ async def get_summary(name: str = None) -> Optional[dict]:
 
 
 async def main():
-    result = await get_summary()
-    print(result['parse']['text']['*'])
+    result = await get_summary(title='Abraham Lincoln')
+    pprint(result)
 
 
 if __name__ == '__main__':
