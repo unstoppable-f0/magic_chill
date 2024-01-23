@@ -13,12 +13,14 @@ async def get_summary(title: str = None) -> Optional[dict]:
     async with aiohttp.ClientSession() as session:
         params = MultiDict([
             ('action', 'query'),
-            ('prop', 'extracts|info'),
+            ('prop', 'extracts|info|langlinks'),
             ('titles', title),
             ('explaintext', 1),
             ('exsentences', 5),
+            ('inprop', 'url'),
+            ('lllang', 'ru'),
+            ('llprop', 'url'),
             ('format', 'json'),
-            ('inprop', 'url')
         ])
         wiki_url = f'https://en.wikipedia.org/w/api.php'
 
@@ -28,7 +30,9 @@ async def get_summary(title: str = None) -> Optional[dict]:
 
 
 async def main():
-    result = await get_summary(title='Abraham Lincoln')
+    # result = await get_summary(title='Abraham Lincoln')
+    result = await get_summary(title='Harry Potter')
+
     pprint(result)
 
 
