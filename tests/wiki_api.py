@@ -35,7 +35,7 @@ async def get_summary(title: str = None) -> Optional[dict]:
 async def main():
     # result = await get_summary(title='Abraham Lincoln')
     # result = await get_summary(title='Barack Obama')
-    result = await get_summary(title='Барак Обама')
+    result = await get_summary(title='kljhnokjihkjih')
     # pprint(result)
 
     page_id = tuple(result['query']['pages'].keys())[0]

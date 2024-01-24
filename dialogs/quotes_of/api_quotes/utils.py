@@ -83,13 +83,15 @@ async def wiki_request(title: str, lang: str) -> Optional[Tuple[str, str]]:
         summary = wiki_page_dict['query']['pages'][page_id]['extract']
         wiki_link = wiki_page_dict['query']['pages'][page_id]['canonicalurl']
 
-        print(summary)
-        print(wiki_link)
-
-        return summary, wiki_link
-
     except KeyError:
-        return None
+        wiki_link = None
+        if lang == 'en':
+            summary = ("Couldn't find a wiki-page for this author. But you can try google him/her."
+                          " Push the button for it!")
+        else:
+            summary = 'Страничка на Википедии не нашлась. Но можно попробовать загуглить автора. Жми на кнопку!'
+
+    return summary, wiki_link
 
 
 
