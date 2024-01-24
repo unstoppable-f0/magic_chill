@@ -10,7 +10,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 from dialogs.quotes_of.api_quotes import getters
-from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter
+from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter, wiki_request
 from dialogs.quotes_of.quotes_menu import router
 
 from utils.translator.google_translator import EasyGoogleTranslate
@@ -36,13 +36,13 @@ def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
     return quote_inline_builder.as_markup()
 
 
-def author_inline_keyboard(author_name: str) -> InlineKeyboardMarkup:
+def author_inline_keyboard(author_name: str, wiki_link: str) -> InlineKeyboardMarkup:
     """Construct an inline keyboard for message answer about the author of the sent quote"""
 
     author_inline_builder = InlineKeyboardBuilder()
 
     author_inline_buttons = [
-        InlineKeyboardButton(text='Перейти на википедию', callback_data='author_wiki'),
+        InlineKeyboardButton(text='Перейти на википедию', url=f'{wiki_link}'),
         InlineKeyboardButton(text='Google him/her!', url=f'{create_google_search_link(author_name)}')
     ]
 
@@ -120,15 +120,25 @@ async def translate(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == 'who_is_author')
 async def who_is_author(callback: CallbackQuery) -> None:
-    """Searches for author in the internet"""
+    """
+    Searches for author in the internet
+    Searches in Wikipedia (eng or rus depends on the language) and creates a google-search link
+    """
 
-    quote_text = callback.message.text
+    author_entity_list = []
+    entities = callback.message.entities
+    for i_entity in entities:
+        if i_entity.type == 'bold':
+            author_entity_list.append(i_entity.extract_from(callback.message.text))
 
-    # Translated text is larger than just the original. So it takes a larger index instead
-    split_quote = quote_text.split('©\n\n')
-    if len(split_quote) == 2:
-        author_name = split_quote[1].split(' on ')[0]
+    if len(author_entity_list) == 2:
+        author_name = author_entity_list[1]
+        lang = 'ru'
     else:
-        author_name = split_quote[2].split(' о ')[0]
+        author_name = author_entity_list[0]
+        lang = 'en'
 
-    await callback.message.answer(text=author_name, reply_markup=author_inline_keyboard(author_name))
+    summary, wiki_link = await wiki_request(title=author_name, lang=lang)
+
+    await callback.message.answer(text=summary,
+                                  reply_markup=author_inline_keyboard(author_name=author_name, wiki_link=wiki_link))

@@ -1,3 +1,8 @@
+from typing import Optional, Tuple
+import json
+import aiohttp
+
+from multidict import MultiDict
 from urllib.parse import quote
 
 
@@ -51,3 +56,41 @@ def translate_formatter(translated_quote: str, author_entity: str) -> str:
     translated_lower_quote_str = ''.join(translated_lower_quote)
 
     return '©'.join((translated_quote[0], translated_lower_quote_str))
+
+
+async def wiki_request(title: str, lang: str) -> Optional[Tuple[str, str]]:
+    """Getting the summary by the name from the Wikipedia"""
+
+    async with aiohttp.ClientSession() as session:
+        params = MultiDict([
+            ('action', 'query'),
+            ('prop', 'extracts|info'),
+            ('titles', title),
+            ('explaintext', 1),
+            ('exsentences', 5),
+            ('inprop', 'url'),
+            ('redirects', 1),
+            ('format', 'json'),
+        ])
+        wiki_url = f'https://{lang}.wikipedia.org/w/api.php'
+
+        async with session.get(wiki_url, params=params) as response:
+            wiki_page_json = await response.text()
+            wiki_page_dict = json.loads(wiki_page_json)
+
+    try:
+        page_id = tuple(wiki_page_dict['query']['pages'].keys())[0]
+        summary = wiki_page_dict['query']['pages'][page_id]['extract']
+        wiki_link = wiki_page_dict['query']['pages'][page_id]['canonicalurl']
+
+        print(summary)
+        print(wiki_link)
+
+        return summary, wiki_link
+
+    except KeyError:
+        return None
+
+
+
+
