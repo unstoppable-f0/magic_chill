@@ -1,49 +1,12 @@
 from aiogram import F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from aiogram.types import Message, CallbackQuery
 
 from dialogs.quotes_of.api_quotes.getters import get_quote, wiki_request
-from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter
+from dialogs.quotes_of.api_quotes.utils import translate_formatter
 from dialogs.quotes_of.quotes_menu import router
 
 from utils.translator.google_translator import EasyGoogleTranslate
-
-
-def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
-    """Construct an inline keyboard for quote-messages"""
-
-    # creating of a builder
-    quote_inline_builder = InlineKeyboardBuilder()
-
-    # Collecting keys of our future keyboard
-    quote_inline_buttons = [
-        InlineKeyboardButton(text="Hit me another 🗞", callback_data="more_quotes"),
-        InlineKeyboardButton(text="Who's author? 🤵‍♀️🤵‍♂️", callback_data='who_is_author')
-    ]
-    if not translated:  # checking if the quote is already translated
-        quote_inline_buttons.append(InlineKeyboardButton(text="Перевод на русский 🇷🇺", callback_data='translate'))
-
-    quote_inline_builder.add(*quote_inline_buttons)
-    quote_inline_builder.adjust(1)
-
-    return quote_inline_builder.as_markup()
-
-
-def author_inline_keyboard(author_name: str, wiki_link: str) -> InlineKeyboardMarkup:
-    """Construct an inline keyboard for message answer about the author of the sent quote"""
-
-    author_inline_builder = InlineKeyboardBuilder()
-
-    author_inline_buttons = [
-        InlineKeyboardButton(text='Перейти на википедию', url=f'{wiki_link}'),
-        InlineKeyboardButton(text='Google him/her!', url=f'{create_google_search_link(author_name)}')
-    ]
-
-    author_inline_builder.add(*author_inline_buttons)
-    author_inline_builder.adjust(1)
-
-    return author_inline_builder.as_markup()
+from dialogs.quotes_of.api_quotes.keyboards import quote_inline_keyboard, author_inline_keyboard
 
 
 @router.message(F.text == "Explore human minds 🧠")
@@ -117,4 +80,6 @@ async def who_is_author(callback: CallbackQuery) -> None:
     summary, wiki_link = await wiki_request(title=author_name, lang=lang)
 
     await callback.message.answer(text=summary,
-                                  reply_markup=author_inline_keyboard(author_name=author_name, wiki_link=wiki_link))
+                                  reply_markup=author_inline_keyboard(author_name=author_name,
+                                                                      wiki_link=wiki_link,
+                                                                      lang=lang))
