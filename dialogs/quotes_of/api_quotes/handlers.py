@@ -1,16 +1,10 @@
-from typing import Optional
-
-import aiohttp
-import json
-from random import choice
-
 from aiogram import F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-from dialogs.quotes_of.api_quotes import getters
-from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter, wiki_request
+from dialogs.quotes_of.api_quotes.getters import get_quote, wiki_request
+from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter
 from dialogs.quotes_of.quotes_menu import router
 
 from utils.translator.google_translator import EasyGoogleTranslate
@@ -50,24 +44,6 @@ def author_inline_keyboard(author_name: str, wiki_link: str) -> InlineKeyboardMa
     author_inline_builder.adjust(1)
 
     return author_inline_builder.as_markup()
-
-
-async def get_quote() -> Optional[dict]:
-    """Get a quote via async API-request in the json format"""
-
-    async with aiohttp.ClientSession() as session:
-        category = choice(getters.categories)
-        api_url = f'https://api.api-ninjas.com/v1/quotes?category={category}'
-        async with session.get(api_url, headers={'X-Api-Key': 'GvQEqVdLigY5wM5yLpu4Lw==CgQcF8Xnmu2P9JwM'}) as response:
-            # json part
-            try:
-                quote_text = await response.text()
-                quote_data = json.loads(quote_text)
-                quote_dict = quote_data[0]
-                return quote_dict
-
-            except IndexError:
-                return None
 
 
 @router.message(F.text == "Explore human minds 🧠")
