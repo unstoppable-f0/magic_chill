@@ -1,73 +1,12 @@
-from typing import Optional
-
-import aiohttp
-import json
-from random import choice
-
 from aiogram import F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import Message, CallbackQuery
 
-
-from dialogs.quotes_of.api_quotes import getters
-from dialogs.quotes_of.api_quotes.utils import create_google_search_link, translate_formatter
+from dialogs.quotes_of.api_quotes.getters import get_quote, wiki_request
+from dialogs.quotes_of.api_quotes.utils import translate_formatter
 from dialogs.quotes_of.quotes_menu import router
 
 from utils.translator.google_translator import EasyGoogleTranslate
-
-
-def quote_inline_keyboard(translated: bool = False) -> InlineKeyboardMarkup:
-    """Construct an inline keyboard for quote-messages"""
-
-    # creating of a builder
-    quote_inline_builder = InlineKeyboardBuilder()
-
-    # Collecting keys of our future keyboard
-    quote_inline_buttons = [
-        InlineKeyboardButton(text="Hit me another 🗞", callback_data="more_quotes"),
-        InlineKeyboardButton(text="Who's author? 🤵‍♀️🤵‍♂️", callback_data='who_is_author')
-    ]
-    if not translated:  # checking if the quote is already translated
-        quote_inline_buttons.append(InlineKeyboardButton(text="Перевод на русский 🇷🇺", callback_data='translate'))
-
-    quote_inline_builder.add(*quote_inline_buttons)
-    quote_inline_builder.adjust(1)
-
-    return quote_inline_builder.as_markup()
-
-
-def author_inline_keyboard(author_name: str) -> InlineKeyboardMarkup:
-    """Construct an inline keyboard for message answer about the author of the sent quote"""
-
-    author_inline_builder = InlineKeyboardBuilder()
-
-    author_inline_buttons = [
-        InlineKeyboardButton(text='Перейти на википедию', callback_data='author_wiki'),
-        InlineKeyboardButton(text='Google him/her!', url=f'{create_google_search_link(author_name)}')
-    ]
-
-    author_inline_builder.add(*author_inline_buttons)
-    author_inline_builder.adjust(1)
-
-    return author_inline_builder.as_markup()
-
-
-async def get_quote() -> Optional[dict]:
-    """Get a quote via async API-request in the json format"""
-
-    async with aiohttp.ClientSession() as session:
-        category = choice(getters.categories)
-        api_url = f'https://api.api-ninjas.com/v1/quotes?category={category}'
-        async with session.get(api_url, headers={'X-Api-Key': 'GvQEqVdLigY5wM5yLpu4Lw==CgQcF8Xnmu2P9JwM'}) as response:
-            # json part
-            try:
-                quote_text = await response.text()
-                quote_data = json.loads(quote_text)
-                quote_dict = quote_data[0]
-                return quote_dict
-
-            except IndexError:
-                return None
+from dialogs.quotes_of.api_quotes.keyboards import quote_inline_keyboard, author_inline_keyboard
 
 
 @router.message(F.text == "Explore human minds 🧠")
@@ -120,15 +59,27 @@ async def translate(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == 'who_is_author')
 async def who_is_author(callback: CallbackQuery) -> None:
-    """Searches for author in the internet"""
+    """
+    Searches for author in the internet
+    Searches in Wikipedia (eng or rus depends on the language) and creates a google-search link
+    """
 
-    quote_text = callback.message.text
+    author_entity_list = []
+    entities = callback.message.entities
+    for i_entity in entities:
+        if i_entity.type == 'bold':
+            author_entity_list.append(i_entity.extract_from(callback.message.text))
 
-    # Translated text is larger than just the original. So it takes a larger index instead
-    split_quote = quote_text.split('©\n\n')
-    if len(split_quote) == 2:
-        author_name = split_quote[1].split(' on ')[0]
+    if len(author_entity_list) == 2:
+        author_name = author_entity_list[1]
+        lang = 'ru'
     else:
-        author_name = split_quote[2].split(' о ')[0]
+        author_name = author_entity_list[0]
+        lang = 'en'
 
-    await callback.message.answer(text=author_name, reply_markup=author_inline_keyboard(author_name))
+    summary, wiki_link = await wiki_request(title=author_name, lang=lang)
+
+    await callback.message.answer(text=summary,
+                                  reply_markup=author_inline_keyboard(author_name=author_name,
+                                                                      wiki_link=wiki_link,
+                                                                      lang=lang))
